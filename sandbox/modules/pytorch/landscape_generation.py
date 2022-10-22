@@ -99,6 +99,19 @@ class LandscapeGeneration(ModuleTemplate):
         DEM = numpy.c_[self.DEM, imd_d]
         return DEM
 
+    def get_image_modify_cycleGAN(self):
+        """From the LoadSaveTopoModule acquire the dem. If a frame have not been yet loaded then capture a new frame.
+        at today 27/08/2020 the image must be doubled for the method to work
+        
+        Modified it, so that a single image is saved instead of a double image!"""
+        if self.LoadArea.absolute_topo is None:
+            self.DEM, _ = self.LoadArea.extractTopo()
+        else:
+            self.DEM = self.LoadArea.absolute_topo
+        imd_d = numpy.copy(self.DEM)
+        DEM = numpy.c_[self.DEM]
+        return DEM
+
     def save_image(self, image: numpy.ndarray = None,
                    name: str = 'landscape_image.png',
                    pathname: str = _test_data['landscape_generation'] + 'saved_DEMs/test/'):
@@ -115,6 +128,33 @@ class LandscapeGeneration(ModuleTemplate):
         """
         if image is None:
             image = self.get_image_modify()
+        self.lock.acquire()
+        fig, ax = plt.subplots()
+
+        ax.imshow(image, cmap='gist_earth', origin="lower")
+        ax.set_axis_off()
+        fig.savefig(pathname + name, bbox_inches='tight', pad_inches=0)
+        plt.close()
+        logger.info("saved succesfully in: " + pathname)
+        self.lock.release()
+        return fig
+
+    def save_image_cycleGAN(self, image: numpy.ndarray = None,
+                   name: str = 'landscape_image.png',
+                   pathname: str = _test_data['landscape_generation'] + 'saved_DEMs/test/testA/'):
+        """
+        Takes the image and saves it as a .png 'image' in the 'patchname' folder with 'name' as name
+        Args:
+            image: Takes a numpy array to be saved as an image. If none then it gets a new image from
+            self.get_image_modify
+            name: name of the image. Must include the .png extension
+            pathname: location of the image to be saved
+
+        Returns:
+            the figure that will be saved
+        """
+        if image is None:
+            image = self.get_image_modify_cycleGAN()
         self.lock.acquire()
         fig, ax = plt.subplots()
 
