@@ -1,0 +1,4 @@
+# Needs to be edited to fit to your system and filepaths!
+
+python .\pytorch-CycleGAN-and-pix2pix\test.py --dataroot .\open_AR_Sandbox\notebooks\tutorials\09_LandscapeGeneration\saved_DEMs\test --results_dir .\open_AR_Sandbox\notebooks\tutorials\09_LandscapeGeneration\results\
+ --checkpoints_dir .\checkpoints_new --name himalaya_mars_cycleGAN --model cycle_gan
